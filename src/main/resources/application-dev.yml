@@ -1,0 +1,21 @@
+spring:
+  datasource:
+    dynamic:
+      druid:
+        # 初始化大小，最小，最大
+        initial-size: 5
+        min-idle: 5
+        max-active: 20
+        max-wait: 60000 # 配置获取连接等待超时的时间
+      primary: master
+      datasource:
+         master:
+            username: root
+            password: ChenRui!475369
+            driver-class-name: com.mysql.cj.jdbc.Driver
+            url: jdbc:mysql://106.12.208.111:3306/floor?allowMultiQueries=true&useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=GMT%2B8&autoReconnect=true
+         slave:
+           username: root
+           password: ChenRui!475369
+           driver-class-name: com.mysql.cj.jdbc.Driver
+           url: jdbc:mysql://106.12.208.111:3306/floor?allowMultiQueries=true&useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=GMT%2B8&autoReconnect=true
