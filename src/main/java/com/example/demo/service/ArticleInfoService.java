@@ -12,5 +12,11 @@ import com.example.demo.entity.ArticleInfo;
  * @since 2019-05-16
  */
 public interface ArticleInfoService extends IService<ArticleInfo> {
-
+    /**
+     * 添加文章信息
+     *
+     * @param articleInfo
+     * @return
+     */
+    boolean saveArticleInfo(ArticleInfo articleInfo);
 }

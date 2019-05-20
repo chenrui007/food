@@ -12,5 +12,10 @@ import com.example.demo.entity.ArticleMessage;
  * @since 2019-05-16
  */
 public interface ArticleMessageService extends IService<ArticleMessage> {
-
+    /**
+     *
+     * @param articleMessage
+     * @return
+     */
+    boolean saveArticleMessage(ArticleMessage articleMessage);
 }

@@ -33,7 +33,15 @@ public class Article implements Serializable {
      */
     private Integer status;
     private Date createTime;
+    private Integer canRead;
 
+    public Integer getCanRead() {
+        return canRead;
+    }
+
+    public void setCanRead(Integer canRead) {
+        this.canRead = canRead;
+    }
 
     public Long getId() {
         return id;
