@@ -17,4 +17,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class ArticleInfoServiceImpl extends ServiceImpl<ArticleInfoMapper, ArticleInfo> implements ArticleInfoService {
 
+    @Override
+    public boolean saveArticleInfo(ArticleInfo articleInfo) {
+        return false;
+    }
 }
