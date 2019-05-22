@@ -25,7 +25,7 @@ import java.util.List;
  * @since 2019-05-16
  */
 @Controller
-@RequestMapping("/category")
+@RequestMapping("/templates/category")
 public class CategoryController {
     @Autowired
     private CategoryService categoryService;

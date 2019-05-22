@@ -11,6 +11,8 @@ import com.example.demo.mapper.ArticleMapper;
 import com.example.demo.service.ArticleService;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * <p>
  * 文章表 服务实现类
@@ -54,5 +56,10 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     @Override
     public boolean updateArticle() {
         return false;
+    }
+
+    @Override
+    public List<Article> listArticle() {
+        return this.list(new LambdaQueryWrapper<Article>().eq(Article::getStatus, MyConstants.UserStatus.nomal));
     }
 }

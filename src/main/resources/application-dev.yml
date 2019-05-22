@@ -13,9 +13,9 @@ spring:
             username: root
             password: ChenRui!475369
             driver-class-name: com.mysql.cj.jdbc.Driver
-            url: jdbc:mysql://106.12.208.111:3306/floor?allowMultiQueries=true&useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=GMT%2B8&autoReconnect=true
+            url: jdbc:mysql://106.12.208.111:3306/zhaoming?allowMultiQueries=true&useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=GMT%2B8&autoReconnect=true
          slave:
            username: root
            password: ChenRui!475369
            driver-class-name: com.mysql.cj.jdbc.Driver
-           url: jdbc:mysql://106.12.208.111:3306/floor?allowMultiQueries=true&useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=GMT%2B8&autoReconnect=true
+           url: jdbc:mysql://106.12.208.111:3306/zhaoming?allowMultiQueries=true&useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=GMT%2B8&autoReconnect=true

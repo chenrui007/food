@@ -10,20 +10,20 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.api.R;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.demo.common.MyConstants;
+import com.example.demo.entity.Article;
 import com.example.demo.entity.UserInfo;
+import com.example.demo.service.ArticleService;
 import com.example.demo.service.UserInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.util.ResourceUtils;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpSession;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 
 /**
  * <p>
@@ -33,12 +33,13 @@ import java.util.Date;
  * @author ZhaoMing
  * @since 2019-05-16
  */
-@Controller
+@RestController
 @RequestMapping("/templates/userInfo")
 public class UserInfoController {
     @Autowired
     private UserInfoService userInfoService;
-
+    @Autowired
+    private ArticleService articleService;
     /**
      * 登录
      *
@@ -84,7 +85,7 @@ public class UserInfoController {
     public R register(@RequestParam(value = "file") MultipartFile file, String loginName, String userName, String password, Integer sex, Integer age) throws FileNotFoundException {
         UserInfo userInfo = userInfoService.getUserInfo(loginName, null);
         if (ObjectUtil.isNotNull(userInfo)) {
-            return R.ok("当前账户已存在");
+            return R.failed("当前账户已存在");
         } else {
             userInfo = new UserInfo();
             if (file.isEmpty()) {
@@ -92,21 +93,23 @@ public class UserInfoController {
             } else {
                 String fileName = System.currentTimeMillis() + file.getOriginalFilename();
                 String filePath = ResourceUtils
-                        .getFile(ResourceUtils.CLASSPATH_URL_PREFIX + "templates/product").getPath();
+                        .getFile(ResourceUtils.CLASSPATH_URL_PREFIX + "templates/avatar").getPath();
                 try {
                     FileUtil.writeBytes(file.getBytes(), filePath + "/" + fileName);
                 } catch (IOException e) {
-                    return R.ok("上传照片失败");
+                    return R.failed("上传照片失败");
                 }
                 userInfo.setAvatar("avatar/" + fileName);
             }
             userInfo.setId(IdWorker.getId());
+            userInfo.setLoginName(loginName);
             userInfo.setUserName(userName);
             userInfo.setPassword(SecureUtil.md5(password));
             userInfo.setSex(sex);
             userInfo.setAge(age);
             userInfo.setStatus(MyConstants.UserStatus.nomal);
             userInfo.setCreateTime(new Date());
+            userInfo.setRole(MyConstants.Role.user);
             return userInfoService.saveUserInfo(userInfo) ? R.ok("注册成功") : R.failed("注册失败");
         }
     }
@@ -171,6 +174,15 @@ public class UserInfoController {
     @PostMapping("/deleteUser")
     public R deleteUser(Long userId) {
         return userInfoService.updateUserInfo(userId, MyConstants.UserStatus.delete, null) ? R.ok("删除成功") : R.failed("删除失败");
+    }
+
+    /**
+     * 活跃用户排行
+     */
+    @GetMapping("/activeUserRanking")
+    public R activeUserRanking() {
+        List<Article> articleList = articleService.listArticle();
+        return R.ok("");
     }
 }
 

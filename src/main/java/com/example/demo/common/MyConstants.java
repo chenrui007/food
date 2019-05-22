@@ -49,4 +49,18 @@ public interface MyConstants {
      */
     int remove = -1;
   }
+
+  /**
+   * 操作
+   */
+  interface Role {
+    /**
+     * 用户
+     */
+    int user = 0;
+    /**
+     * 管理员
+     */
+    int admin = 1;
+  }
 }

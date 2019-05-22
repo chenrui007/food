@@ -17,7 +17,7 @@
     <link href="css/bootstrap.css" media="all" rel="stylesheet" type="text/css"/>
     <link href="css/style.css" media="all" rel="stylesheet" type="text/css"/>
     <!-- js -->
-    <script src="js/jquery-2.1.4.min.js" type="text/javascript"></script>
+    <script src="js/jquery.min.js" type="text/javascript"></script>
     <!-- //js -->
     <!-- font-awesome-icons -->
     <link href="css/font-awesome.min.css" rel="stylesheet"/>
@@ -72,31 +72,31 @@
         <div class="contact-form">
             <h4>请填写信息</h4>
             <div class="contact-form-grid">
-                <form action="#" method="post">
+                <form action="#" method="post" class="form-horizontal" id="userInfo"
+                      enctype="multipart/form-data">
                     <div class="fields-grid">
                         <div class="styled-input agile-styled-input-top">
-                            <input name="Full Name" required="" type="text">
+                            <input id="loginName" name="loginName" required="" type="text">
                             <label>登录账号</label>
                             <span></span>
                         </div>
                         <div class="styled-input agile-styled-input-top">
-                            <input name="Phone" required="" type="text">
+                            <input id="password" name="password" required="" type="text">
                             <label>密码</label>
                             <span></span>
                         </div>
                         <div class="styled-input">
-                            <input name="Email" required="" type="text">
+                            <input id="userName" name="userName" required="" type="text">
                             <label>姓名</label>
                             <span></span>
                         </div>
                         <div class="styled-input">
-                            <input name="Subject" required="" type="text">
-                            <label>Subject</label>
+                            <input name="file" id="file" required="" type="file" class="form-control-file">
                             <span></span>
                         </div>
                         <div class="clearfix"></div>
                     </div>
-                    <input type="submit" value="SEND">
+                    <button class="btn btn-warning" type="button" onclick="register()">SEND</button>
                 </form>
             </div>
         </div>
@@ -198,6 +198,7 @@
 <!-- //for bootstrap working -->
 <script src="js/jarallax.js"></script>
 <script src="js/SmoothScroll.min.js"></script>
+<script src="js/sweetalert.min.js"></script>
 <script type="text/javascript">
     /* init Jarallax */
     $('.jarallax').jarallax({
@@ -207,4 +208,31 @@
     })
 </script>
 </body>
+<script>
+    function register() {
+        var formData = new FormData($("#userInfo")[0]);
+        var loginName = document.getElementById("loginName").value;
+        var userName = document.getElementById("userName").value;
+        var password = document.getElementById("password").value;
+        formData.set("loginName",loginName);
+        formData.set("userName",userName);
+        formData.set("password",password);
+        $.ajax({
+            type: "POST",
+            url: "userInfo/register",//路径
+            data: formData,
+            async: false,
+            cache: false,
+            contentType: false,
+            processData: false,
+            success: function (data) {//返回数据根据结果进行相应的处理
+                if (data.code == 0) {
+                    swal("注册成功", "", "success");
+                } else {
+                    swal("注册失败", data.msg, "error");
+                }
+            }
+        });
+    }
+</script>
 </html>

@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.example.demo.entity.Article;
 
+import java.util.List;
+
 /**
  * <p>
  * 文章表 服务类
@@ -53,4 +55,10 @@ public interface ArticleService extends IService<Article> {
      * @return
      */
     boolean updateArticle();
+
+    /**
+     * 获取文章列表
+     * @return
+     */
+    List<Article> listArticle();
 }
