@@ -1,7 +1,9 @@
 package com.example.demo.entity;
 
-import java.util.Date;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * <p>
@@ -14,11 +16,12 @@ import java.io.Serializable;
 public class ArticleMessage implements Serializable {
 
     private static final long serialVersionUID = 1L;
-
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long id;
     /**
      * 文章ID
      */
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long articleId;
     /**
      * 留言内容

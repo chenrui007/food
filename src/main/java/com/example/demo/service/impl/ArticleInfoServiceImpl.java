@@ -7,18 +7,17 @@ import com.example.demo.service.ArticleInfoService;
 import org.springframework.stereotype.Service;
 
 /**
- * <p>
- * 文章信息表 服务实现类
- * </p>
+ * <p> 文章信息表 服务实现类 </p>
  *
  * @author ZhaoMing
  * @since 2019-05-16
  */
 @Service
-public class ArticleInfoServiceImpl extends ServiceImpl<ArticleInfoMapper, ArticleInfo> implements ArticleInfoService {
+public class ArticleInfoServiceImpl extends ServiceImpl<ArticleInfoMapper, ArticleInfo> implements
+    ArticleInfoService {
 
-    @Override
-    public boolean saveArticleInfo(ArticleInfo articleInfo) {
-        return false;
-    }
+  @Override
+  public boolean saveArticleInfo(ArticleInfo articleInfo) {
+    return this.save(articleInfo);
+  }
 }

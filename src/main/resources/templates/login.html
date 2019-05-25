@@ -28,11 +28,6 @@
   <link
       href="http://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i,800,800i&amp;subset=cyrillic,cyrillic-ext,greek,greek-ext,latin-ext,vietnamese"
       rel="stylesheet">
-  <style>
-    input[type="file"] {
-      display: inline-block !important;
-    }
-  </style>
 </head>
 
 <body>
@@ -77,54 +72,24 @@
 <!-- contact -->
 <div class="contact">
   <div class="container">
-    <h2 class="w3ls_head"><span>发布</span>文章</h2>
+    <h2 class="w3ls_head"><span>登</span>录</h2>
     <div class="contact-form">
-      <h4>请填写文章内容</h4>
+      <h4>请填写账号密码</h4>
       <div class="contact-form-grid">
-        <form action="#" class="form-horizontal" enctype="multipart/form-data" id="articleInfo"
-              method="post">
-          <div class="fields-grid">
-
-            <div class="input-group">
-              <div class="input-group-btn">
-                <button aria-expanded="false" aria-haspopup="true"
-                        class="btn btn-default dropdown-toggle"
-                        data-toggle="dropdown" type="button">Action <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu">
-                  <li><a href="#">Action</a></li>
-                  <li><a href="#">Another action</a></li>
-                  <li><a href="#">Something else here</a></li>
-                  <li class="divider" role="separator"></li>
-                  <li><a href="#">Separated link</a></li>
-                </ul>
-              </div><!-- /btn-group -->
-              <input id="articleName" name="loginName" placeholder="请填写文章标题" required=""
-                     type="text">
-
-            </div><!-- /input-group -->
-
-
-            <div class="styled-input">
-              <span>上传图片：</span>
-              <input id="picFile" name="picFile" required="" class="form-control-file" type="file">
-              <span></span>
-            </div>
-            <div class="styled-input">
-              <span>上传音频：</span>
-              <input class="form-control-file" id="voiceFile" name="voiceFile" required="" type="file">
-              <span></span>
-            </div>
-
-            <div class="clearfix"></div>
-          </div>
-          <div class="styled-input textarea-grid">
-            <textarea name="content" required="" id="content"></textarea>
-            <label>内容</label>
+        <div class="fields-grid">
+          <div class="styled-input agile-styled-input-top">
+            <input id="loginName" name="loginName" required="" type="text">
+            <label>登录账号</label>
             <span></span>
           </div>
-          <button class="btn btn-warning" onclick="saveArticle()" type="button">SEND</button>
-        </form>
+          <div class="styled-input agile-styled-input-top">
+            <input id="password" name="password" required="" type="text">
+            <label>密码</label>
+            <span></span>
+          </div>
+          <div class="clearfix"></div>
+        </div>
+        <button class="btn btn-warning" type="button" onclick="login()">登录系统</button>
       </div>
     </div>
   </div>
@@ -239,49 +204,28 @@
   })
 </script>
 </body>
-<!--<script>
-    $(document).ready(function () {
-        $.ajax({
-            type: "GET",
-            url: "category/listCategory",//路径
-            dataType: "json",
-            success: function (data) {//返回数据根据结果进行相应的处理
-                console.log(data);
-                var studentCount = '<strong>' + data.data.studentCount + '</strong>';
-                $("#studentCount").html('').append(studentCount);
-            }
-        });
-    })
-</script>-->
 <script>
-  function saveArticle() {
-    var userId = localStorage.getItem("userId");
-    if (userId == null) {
-      window.location.href = "login.html";
-    }
-    var formData = new FormData($("#articleInfo")[0]);
-    console.log(formData);
-    var articleName = document.getElementById("articleName").value;
-    /*
-        var categoryId = document.getElementById("categoryId").value;
-    */
-    var content = document.getElementById("content").value;
-    formData.set("articleName", articleName);
-    formData.set("categoryId", 1);
-    formData.set("content", content);
+  function login() {
+
+    var loginName = document.getElementById("loginName").value;
+    var password = document.getElementById("password").value;
     $.ajax({
       type: "POST",
-      url: "article/saveArticle",//路径
-      data: formData,
-      async: false,
-      cache: false,
-      contentType: false,
-      processData: false,
+      url: "userInfo/login",//路径
+      data: {
+        "loginName": loginName,
+        "password": password
+      },
+      dataType: "json",
       success: function (data) {//返回数据根据结果进行相应的处理
         if (data.code == 0) {
-          swal("发布文章成功", "", "success");
+
+          localStorage.setItem("loginName", data.data.loginName);
+          localStorage.setItem("userId", data.data.id)
+          localStorage.setItem("userName", data.data.userName);
+          window.location.href = "index.html";
         } else {
-          swal("发布文章失败", data.msg, "error");
+          swal("登录失败", data.msg, "error");
         }
       }
     });

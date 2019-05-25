@@ -50,7 +50,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
 
     @Override
     public boolean saveArticle(Article article) {
-        return false;
+        return this.save(article);
     }
 
     @Override

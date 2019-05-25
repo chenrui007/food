@@ -63,7 +63,7 @@ public class UserInfoController {
                 session.setAttribute("loginName", userInfo.getLoginName());
                 session.setAttribute("userName", userInfo.getUserName());
                 session.setAttribute("userId", userInfo.getId());
-                return R.ok("");
+                return R.ok(userInfo);
             } else {
                 return R.failed("用户状态异常");
             }
