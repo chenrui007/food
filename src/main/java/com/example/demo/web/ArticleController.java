@@ -55,7 +55,22 @@ public class ArticleController {
   @GetMapping("/pageArticle")
   public R pageArticle(Page<Article> page, String articleName, Long categoryId) {
     IPage<Article> ret = articleService
-        .pageArticle(page, articleName, categoryId, MyConstants.UserStatus.nomal);
+        .pageArticle(page, articleName, categoryId, MyConstants.UserStatus.nomal, null, null);
+    ret.getRecords().stream().forEach(it -> {
+      it.setReadNum(articleInfoService.getByArticleId(it.getId()).getReadingVolume());
+    });
+    return R.ok(ret);
+  }
+
+  /**
+   * 分页查看我的文章
+   */
+  @GetMapping("/myArticle")
+  public R myArticle(Page<Article> page, HttpSession session) {
+    Long userId = Long.valueOf(session.getAttribute("userId").toString());
+
+    IPage<Article> ret = articleService
+        .pageArticle(page, null, null, MyConstants.UserStatus.nomal, null, userId);
     ret.getRecords().stream().forEach(it -> {
       it.setReadNum(articleInfoService.getByArticleId(it.getId()).getReadingVolume());
     });
@@ -95,7 +110,7 @@ public class ArticleController {
 
     ArticleInfo articleInfo = new ArticleInfo();
 
-    if(!picFile.isEmpty()) {
+    if (!picFile.isEmpty()) {
       // 校验图片格式
       String picName = picFile.getOriginalFilename();
       String picfileExtension = picName.substring(picName.lastIndexOf("."));
@@ -114,8 +129,7 @@ public class ArticleController {
       articleInfo.setArticlePicture("article/pic/" + picfileName);
     }
 
-
-    if(!voiceFile.isEmpty()){
+    if (!voiceFile.isEmpty()) {
       //校验音频格式
       String voiceName = voiceFile.getOriginalFilename();
       String voicefileExtension = voiceName.substring(voiceName.lastIndexOf("."));
@@ -166,20 +180,27 @@ public class ArticleController {
 
   /**
    * 查看文章详情
-   *
-   * @param articleId
-   * @return
    */
   @GetMapping("/getArticle")
   public R getArticle(HttpSession session, Long articleId) {
     ArticleVO articleVO = new ArticleVO();
-    Long userId = Long.valueOf(session.getAttribute("userId").toString());
+    if (ObjectUtil.isNotNull(session.getAttribute("userId"))) {
+      Long userId = Long.valueOf(session.getAttribute("userId").toString());
+      UserCollection userCollection = userCollectionService.getUserCollection(userId, articleId);
+      if (ObjectUtil.isNotNull(userCollection)) {
+        articleVO.setCollectionStatus(1);
+      } else {
+        articleVO.setCollectionStatus(0);
+      }
+    }
+
     Article article = articleService.getById(articleId);
     ArticleInfo articleInfo = articleInfoService.getByArticleId(articleId);
     UserInfo userInfo = userInfoService.getById(article.getAuthor());
     Category category = categoryService.getById(article.getCategoryId());
     Page<ArticleMessage> page = new Page<>();
-    List<ArticleMessage> articleMessageList = articleMessageService.pageArticleMessage(page, articleId, null).getRecords();
+    List<ArticleMessage> articleMessageList = articleMessageService
+        .pageArticleMessage(page, articleId, null).getRecords();
     articleMessageList.stream().forEach(it -> {
       it.setMessageFrom(userInfoService.getById(it.getUserId()).getUserName());
       it.setCreateTimeStr(DateUtil.format(it.getCreateTime(), "yyyy-MM-dd HH:mm:ss"));
@@ -195,12 +216,6 @@ public class ArticleController {
     articleVO.setReadingVolume(articleInfo.getReadingVolume());
     articleVO.setArticleMessage(articleMessageList);
 
-    UserCollection userCollection = userCollectionService.getUserCollection(userId,articleId);
-    if(ObjectUtil.isNotNull(userCollection)){
-      articleVO.setCollectionStatus(1);
-    }else {
-      articleVO.setCollectionStatus(0);
-    }
     return R.ok(articleVO);
   }
 }

@@ -2,6 +2,7 @@ package com.example.demo.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.example.demo.entity.UserCollection;
+import java.util.List;
 
 /**
  * <p>
@@ -31,4 +32,6 @@ public interface UserCollectionService extends IService<UserCollection> {
     boolean removeCollection(Long userId, Long articleId);
 
     UserCollection getUserCollection(Long userId, Long articleId);
+
+    List<UserCollection> listUserCollection(Long userId);
 }
