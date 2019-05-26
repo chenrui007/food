@@ -3,6 +3,7 @@ package com.example.demo.service.impl;
 import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.demo.common.MyConstants;
@@ -28,7 +29,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     @Override
     public IPage<Article> pageArticle(Page<Article> page, String articleName, Long categoryId, Integer canRead) {
         return this.page(page, new LambdaQueryWrapper<Article>()
-                .eq(Article::getArticleName, articleName)
+                .like(StringUtils.isNotEmpty(articleName), Article::getArticleName, articleName)
                 .eq(Article::getCategoryId, categoryId)
                 .eq(Article::getStatus, MyConstants.UserStatus.nomal)
                 .eq(ObjectUtil.isNotNull(canRead), Article::getCanRead, canRead));

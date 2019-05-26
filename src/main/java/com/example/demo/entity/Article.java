@@ -1,5 +1,6 @@
 package com.example.demo.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import java.util.Date;
@@ -36,6 +37,16 @@ public class Article implements Serializable {
     private Integer status;
     private Date createTime;
     private Integer canRead;
+    @TableField(exist = false)
+    private Integer readNum;
+
+    public Integer getReadNum() {
+        return readNum;
+    }
+
+    public void setReadNum(Integer readNum) {
+        this.readNum = readNum;
+    }
 
     public Integer getCanRead() {
         return canRead;

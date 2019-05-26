@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.example.demo.entity.ArticleMessage;
 
+import java.util.List;
+
 /**
  * <p>
  * 文章留言 服务类
@@ -37,5 +39,6 @@ public interface ArticleMessageService extends IService<ArticleMessage> {
      * @return
      */
     IPage<ArticleMessage> pageArticleMessage(Page<ArticleMessage> page, Long articleId, Long userId);
+
 
 }

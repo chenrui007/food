@@ -8,10 +8,10 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.demo.entity.ArticleMessage;
 import com.example.demo.service.ArticleMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpSession;
 import java.util.Date;
@@ -24,8 +24,8 @@ import java.util.Date;
  * @author ZhaoMing
  * @since 2019-05-16
  */
-@Controller
-@RequestMapping("/articleMessage")
+@RestController
+@RequestMapping("/templates/articleMessage")
 public class ArticleMessageController {
     @Autowired
     private ArticleMessageService articleMessageService;

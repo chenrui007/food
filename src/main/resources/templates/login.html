@@ -223,7 +223,12 @@
           localStorage.setItem("loginName", data.data.loginName);
           localStorage.setItem("userId", data.data.id)
           localStorage.setItem("userName", data.data.userName);
-          window.location.href = "index.html";
+          if(data.data.role == 0){
+            window.location.href = "index.html";
+          }else {
+            window.location.href = "admin-index.html";
+          }
+
         } else {
           swal("登录失败", data.msg, "error");
         }

@@ -1,6 +1,7 @@
 package com.example.demo.web;
 
 
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -8,19 +9,19 @@ import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.api.R;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.demo.common.MyConstants;
-import com.example.demo.entity.Article;
-import com.example.demo.entity.ArticleInfo;
-import com.example.demo.service.ArticleInfoService;
-import com.example.demo.service.ArticleService;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import com.example.demo.entity.*;
+import com.example.demo.service.*;
+import com.example.demo.vo.ArticleVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.ResourceUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpSession;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 
 /**
  * <p> 文章表 前端控制器 </p>
@@ -36,6 +37,14 @@ public class ArticleController {
   private ArticleService articleService;
   @Autowired
   private ArticleInfoService articleInfoService;
+  @Autowired
+  private ArticleMessageService articleMessageService;
+  @Autowired
+  private UserInfoService userInfoService;
+  @Autowired
+  private CategoryService categoryService;
+  @Autowired
+  private UserCollectionService userCollectionService;
 
   /**
    * 分页查看文章
@@ -47,6 +56,9 @@ public class ArticleController {
   public R pageArticle(Page<Article> page, String articleName, Long categoryId) {
     IPage<Article> ret = articleService
         .pageArticle(page, articleName, categoryId, MyConstants.UserStatus.nomal);
+    ret.getRecords().stream().forEach(it -> {
+      it.setReadNum(articleInfoService.getByArticleId(it.getId()).getReadingVolume());
+    });
     return R.ok(ret);
   }
 
@@ -91,7 +103,7 @@ public class ArticleController {
           .notEqual(".png", picfileExtension)) {
         return R.failed("请上传正确的图片类型");
       }
-      String picfileName = System.currentTimeMillis() + picFile.getOriginalFilename();
+      String picfileName = System.currentTimeMillis() + picName;
       String picfilePath = ResourceUtils
           .getFile(ResourceUtils.CLASSPATH_URL_PREFIX + "templates/article/pic").getPath();
       try {
@@ -111,7 +123,7 @@ public class ArticleController {
         return R.failed("请上传正确的音频类型");
       }
 
-      String voicefileName = System.currentTimeMillis() + picFile.getOriginalFilename();
+      String voicefileName = System.currentTimeMillis() + voiceName;
       String voicefilePath = ResourceUtils
           .getFile(ResourceUtils.CLASSPATH_URL_PREFIX + "templates/article/voice").getPath();
       try {
@@ -150,6 +162,46 @@ public class ArticleController {
     } else {
       return R.failed("添加文章失败");
     }
+  }
+
+  /**
+   * 查看文章详情
+   *
+   * @param articleId
+   * @return
+   */
+  @GetMapping("/getArticle")
+  public R getArticle(HttpSession session, Long articleId) {
+    ArticleVO articleVO = new ArticleVO();
+    Long userId = Long.valueOf(session.getAttribute("userId").toString());
+    Article article = articleService.getById(articleId);
+    ArticleInfo articleInfo = articleInfoService.getByArticleId(articleId);
+    UserInfo userInfo = userInfoService.getById(article.getAuthor());
+    Category category = categoryService.getById(article.getCategoryId());
+    Page<ArticleMessage> page = new Page<>();
+    List<ArticleMessage> articleMessageList = articleMessageService.pageArticleMessage(page, articleId, null).getRecords();
+    articleMessageList.stream().forEach(it -> {
+      it.setMessageFrom(userInfoService.getById(it.getUserId()).getUserName());
+      it.setCreateTimeStr(DateUtil.format(it.getCreateTime(), "yyyy-MM-dd HH:mm:ss"));
+    });
+    articleVO.setId(articleId);
+    articleVO.setArticleName(article.getArticleName());
+    articleVO.setAuthorId(article.getAuthor());
+    articleVO.setAuthor(userInfo.getUserName());
+    articleVO.setContent(articleInfo.getContent());
+    articleVO.setArticleVoice(articleInfo.getArticleVoice());
+    articleVO.setArticlePicture(articleInfo.getArticlePicture());
+    articleVO.setCategoryName(category.getCategoryName());
+    articleVO.setReadingVolume(articleInfo.getReadingVolume());
+    articleVO.setArticleMessage(articleMessageList);
+
+    UserCollection userCollection = userCollectionService.getUserCollection(userId,articleId);
+    if(ObjectUtil.isNotNull(userCollection)){
+      articleVO.setCollectionStatus(1);
+    }else {
+      articleVO.setCollectionStatus(0);
+    }
+    return R.ok(articleVO);
   }
 }
 

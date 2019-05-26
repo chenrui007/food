@@ -1,5 +1,6 @@
 package com.example.demo.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.demo.entity.ArticleInfo;
 import com.example.demo.mapper.ArticleInfoMapper;
@@ -19,5 +20,15 @@ public class ArticleInfoServiceImpl extends ServiceImpl<ArticleInfoMapper, Artic
   @Override
   public boolean saveArticleInfo(ArticleInfo articleInfo) {
     return this.save(articleInfo);
+  }
+
+  @Override
+  public ArticleInfo getByArticleId(Long articleId) {
+    return this.getOne(new LambdaQueryWrapper<ArticleInfo>().eq(ArticleInfo::getArticleId, articleId));
+  }
+
+  @Override
+  public boolean updateArticleInfo(ArticleInfo articleInfo) {
+    return this.updateById(articleInfo);
   }
 }

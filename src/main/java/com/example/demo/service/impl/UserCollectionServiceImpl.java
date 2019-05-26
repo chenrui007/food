@@ -37,4 +37,9 @@ public class UserCollectionServiceImpl extends ServiceImpl<UserCollectionMapper,
                 .eq(UserCollection::getUserId, userId)
                 .eq(UserCollection::getArticleId, articleId));
     }
+
+    @Override
+    public UserCollection getUserCollection(Long userId, Long articleId) {
+        return this.getOne(new LambdaQueryWrapper<UserCollection>().eq(UserCollection::getArticleId, articleId).eq(UserCollection::getUserId, userId));
+    }
 }

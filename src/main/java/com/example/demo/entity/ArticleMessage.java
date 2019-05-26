@@ -1,7 +1,9 @@
 package com.example.demo.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+
 import java.io.Serializable;
 import java.util.Date;
 
@@ -35,7 +37,26 @@ public class ArticleMessage implements Serializable {
      * 创建时间
      */
     private Date createTime;
+    @TableField(exist = false)
+    private String messageFrom;
+    @TableField(exist = false)
+    private String createTimeStr;
 
+    public String getCreateTimeStr() {
+        return createTimeStr;
+    }
+
+    public void setCreateTimeStr(String createTimeStr) {
+        this.createTimeStr = createTimeStr;
+    }
+
+    public String getMessageFrom() {
+        return messageFrom;
+    }
+
+    public void setMessageFrom(String messageFrom) {
+        this.messageFrom = messageFrom;
+    }
 
     public Long getId() {
         return id;

@@ -19,4 +19,18 @@ public interface ArticleInfoService extends IService<ArticleInfo> {
      * @return
      */
     boolean saveArticleInfo(ArticleInfo articleInfo);
+
+    /**
+     * 通过文章ID查询
+     * @param articleId
+     * @return
+     */
+    ArticleInfo getByArticleId(Long articleId);
+
+    /**
+     * 修改
+     * @param articleInfo
+     * @return
+     */
+    boolean updateArticleInfo(ArticleInfo articleInfo);
 }

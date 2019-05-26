@@ -29,4 +29,6 @@ public interface UserCollectionService extends IService<UserCollection> {
      * @return
      */
     boolean removeCollection(Long userId, Long articleId);
+
+    UserCollection getUserCollection(Long userId, Long articleId);
 }

@@ -89,14 +89,10 @@
               <div class="input-group-btn">
                 <button aria-expanded="false" aria-haspopup="true"
                         class="btn btn-default dropdown-toggle"
-                        data-toggle="dropdown" type="button">Action <span class="caret"></span>
+                        data-toggle="dropdown" type="button">文章分类 <span class="caret"></span>
                 </button>
-                <ul class="dropdown-menu">
-                  <li><a href="#">Action</a></li>
-                  <li><a href="#">Another action</a></li>
-                  <li><a href="#">Something else here</a></li>
-                  <li class="divider" role="separator"></li>
-                  <li><a href="#">Separated link</a></li>
+                <ul class="dropdown-menu" id="category">
+
                 </ul>
               </div><!-- /btn-group -->
               <input id="articleName" name="loginName" placeholder="请填写文章标题" required=""
@@ -119,7 +115,7 @@
             <div class="clearfix"></div>
           </div>
           <div class="styled-input textarea-grid">
-            <textarea name="content" required="" id="content"></textarea>
+            <textarea id="content" name="content" required=""></textarea>
             <label>内容</label>
             <span></span>
           </div>
@@ -239,20 +235,19 @@
   })
 </script>
 </body>
-<!--<script>
-    $(document).ready(function () {
-        $.ajax({
-            type: "GET",
-            url: "category/listCategory",//路径
-            dataType: "json",
-            success: function (data) {//返回数据根据结果进行相应的处理
-                console.log(data);
-                var studentCount = '<strong>' + data.data.studentCount + '</strong>';
-                $("#studentCount").html('').append(studentCount);
-            }
-        });
-    })
-</script>-->
+<script>
+  function getQueryVariable(variable) {
+    var query = window.location.search.substring(1);
+    var vars = query.split("&");
+    for (var i = 0; i < vars.length; i++) {
+      var pair = vars[i].split("=");
+      if (pair[0] == variable) {
+        return pair[1];
+      }
+    }
+    return (false);
+  }
+</script>
 <script>
   function saveArticle() {
     var userId = localStorage.getItem("userId");
@@ -260,14 +255,12 @@
       window.location.href = "login.html";
     }
     var formData = new FormData($("#articleInfo")[0]);
-    console.log(formData);
+
     var articleName = document.getElementById("articleName").value;
-    /*
-        var categoryId = document.getElementById("categoryId").value;
-    */
+    var categoryId = getQueryVariable("categoryId");
     var content = document.getElementById("content").value;
     formData.set("articleName", articleName);
-    formData.set("categoryId", 1);
+    formData.set("categoryId", categoryId);
     formData.set("content", content);
     $.ajax({
       type: "POST",
@@ -286,5 +279,26 @@
       }
     });
   }
+</script>
+<script>
+  $(document).ready(function () {
+
+    $.ajax({
+      type: "GET",
+      url: "category/listCategory",//路径
+      dataType: "json",
+      success: function (data) {//返回数据根据结果进行相应的处理
+        var data = data.data;
+        console.log(data);
+        var category = "";
+
+
+        for (var i = 0; i < data.length; i++) {
+          category += ' <li><a href="article.html?categoryId=' + data[i].id + '">' + data[i].categoryName + '</a></li>';
+        }
+        $("#category").html('').append(category);
+      }
+    });
+  })
 </script>
 </html>
