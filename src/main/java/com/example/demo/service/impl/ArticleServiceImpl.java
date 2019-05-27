@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.demo.common.MyConstants;
+import com.example.demo.common.MyConstants.UserStatus;
 import com.example.demo.entity.Article;
 import com.example.demo.mapper.ArticleMapper;
 import com.example.demo.service.ArticleService;
@@ -24,7 +25,6 @@ import java.util.List;
 @Service
 public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> implements
     ArticleService {
-
 
   @Override
   public IPage<Article> pageArticle(Page<Article> page, String articleName, Long categoryId,
@@ -58,13 +58,20 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
   }
 
   @Override
-  public boolean updateArticle() {
-    return false;
+  public boolean updateArticle(Article article) {
+    return this.updateById(article);
   }
 
   @Override
   public List<Article> listArticle() {
     return this.list(
         new LambdaQueryWrapper<Article>().eq(Article::getStatus, MyConstants.UserStatus.nomal));
+  }
+
+  @Override
+  public int articleNumByUserId(Long userId) {
+    return this.count(new LambdaQueryWrapper<Article>()
+        .eq(Article::getAuthor, userId)
+        .eq(Article::getStatus, UserStatus.nomal));
   }
 }

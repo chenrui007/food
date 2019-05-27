@@ -66,8 +66,10 @@ public class ArticleController {
    * 分页查看我的文章
    */
   @GetMapping("/myArticle")
-  public R myArticle(Page<Article> page, HttpSession session) {
-    Long userId = Long.valueOf(session.getAttribute("userId").toString());
+  public R myArticle(Page<Article> page, HttpSession session, Long userId) {
+    if (ObjectUtil.isNull(userId)) {
+      userId = Long.valueOf(session.getAttribute("userId").toString());
+    }
 
     IPage<Article> ret = articleService
         .pageArticle(page, null, null, MyConstants.UserStatus.nomal, null, userId);
@@ -107,74 +109,41 @@ public class ArticleController {
       @RequestParam(value = "voiceFile") MultipartFile voiceFile, String articleName,
       Long categoryId, HttpSession session, String content)
       throws FileNotFoundException {
-
     ArticleInfo articleInfo = new ArticleInfo();
 
-    if (!picFile.isEmpty()) {
-      // 校验图片格式
-      String picName = picFile.getOriginalFilename();
-      String picfileExtension = picName.substring(picName.lastIndexOf("."));
-      if (ObjectUtil.notEqual(".jpg", picfileExtension) && ObjectUtil
-          .notEqual(".png", picfileExtension)) {
-        return R.failed("请上传正确的图片类型");
-      }
-      String picfileName = System.currentTimeMillis() + picName;
-      String picfilePath = ResourceUtils
-          .getFile(ResourceUtils.CLASSPATH_URL_PREFIX + "templates/article/pic").getPath();
-      try {
-        FileUtil.writeBytes(picFile.getBytes(), picfilePath + "/" + picfileName);
-      } catch (IOException e) {
-        return R.failed("上传图片失败");
-      }
-      articleInfo.setArticlePicture("article/pic/" + picfileName);
-    }
+    R r = checkFile(picFile, voiceFile, articleInfo);
+    if (r.getCode() == 0) {
 
-    if (!voiceFile.isEmpty()) {
-      //校验音频格式
-      String voiceName = voiceFile.getOriginalFilename();
-      String voicefileExtension = voiceName.substring(voiceName.lastIndexOf("."));
-      if (ObjectUtil.notEqual(".mp3", voicefileExtension)) {
-        return R.failed("请上传正确的音频类型");
-      }
+      Long articleId = IdWorker.getId();
+      Article article = new Article();
+      article.setId(articleId);
+      article.setArticleName(articleName);
+      article.setCategoryId(categoryId);
+      Long userId = Long.valueOf(session.getAttribute("userId").toString());
+      article.setAuthor(userId);
+      article.setStatus(MyConstants.UserStatus.nomal);
+      Date date = new Date();
+      article.setCreateTime(date);
+      boolean saveFlag = articleService.saveArticle(article);
 
-      String voicefileName = System.currentTimeMillis() + voiceName;
-      String voicefilePath = ResourceUtils
-          .getFile(ResourceUtils.CLASSPATH_URL_PREFIX + "templates/article/voice").getPath();
-      try {
-        FileUtil.writeBytes(picFile.getBytes(), voicefilePath + "/" + voicefileName);
-      } catch (IOException e) {
-        return R.failed("上传音频失败");
-      }
-      articleInfo.setArticleVoice("article/voice/" + voicefileName);
-    }
+      if (saveFlag) {
 
-    Long articleId = IdWorker.getId();
-    Article article = new Article();
-    article.setId(articleId);
-    article.setArticleName(articleName);
-    article.setCategoryId(categoryId);
-    Long userId = Long.valueOf(session.getAttribute("userId").toString());
-    article.setAuthor(userId);
-    article.setStatus(MyConstants.UserStatus.nomal);
-    Date date = new Date();
-    article.setCreateTime(date);
-    boolean saveFlag = articleService.saveArticle(article);
-
-    if (saveFlag) {
-
-      articleInfo.setId(IdWorker.getId());
-      articleInfo.setArticleId(articleId);
-      articleInfo.setContent(content);
-      articleInfo.setStatus(MyConstants.UserStatus.nomal);
-      articleInfo.setCreateTime(date);
-      boolean saveArticleInfoFlag = articleInfoService.saveArticleInfo(articleInfo);
-      if (saveArticleInfoFlag) {
-        return R.ok("添加成功");
+        articleInfo.setId(IdWorker.getId());
+        articleInfo.setArticleId(articleId);
+        articleInfo.setContent(content);
+        articleInfo.setStatus(MyConstants.UserStatus.nomal);
+        articleInfo.setCreateTime(date);
+        boolean saveArticleInfoFlag = articleInfoService.saveArticleInfo(articleInfo);
+        if (saveArticleInfoFlag) {
+          return R.ok("添加成功");
+        } else {
+          return R.failed("添加文章信息失败");
+        }
       } else {
-        return R.failed("添加文章信息失败");
+        return R.failed("添加文章失败");
       }
     } else {
-      return R.failed("添加文章失败");
+      return R.failed("文件异常");
     }
   }
 
@@ -218,5 +187,77 @@ public class ArticleController {
 
     return R.ok(articleVO);
   }
+
+  /**
+   * 编辑文章
+   *
+   * @param articleId 文章ID
+   * @param articleName 文章名
+   * @param content 文章内容
+   * @param picFile 图片
+   * @param voiceFile 音频
+   */
+  @PostMapping("/updateArticle")
+  public R updateArticle(Long articleId, String articleName, String content,
+      @RequestParam(value = "picFile") MultipartFile picFile,
+      @RequestParam(value = "voiceFile") MultipartFile voiceFile) throws FileNotFoundException {
+
+    Article article = articleService.getById(articleId);
+    article.setArticleName(articleName);
+    articleService.updateArticle(article);
+
+    ArticleInfo articleInfo = articleInfoService.getByArticleId(articleId);
+    R r = checkFile(picFile, voiceFile, articleInfo);
+    if (r.getCode() == 0) {
+      articleInfo.setContent(content);
+    }
+    return articleInfoService.updateArticleInfo(articleInfo) ? R.ok("修改成功") : R.failed("修改失败");
+  }
+
+
+  private R checkFile(@RequestParam(value = "picFile") MultipartFile picFile,
+      @RequestParam(value = "voiceFile") MultipartFile voiceFile, ArticleInfo articleInfo)
+      throws FileNotFoundException {
+
+    if (!picFile.isEmpty()) {
+      // 校验图片格式
+      String picName = picFile.getOriginalFilename();
+      String picfileExtension = picName.substring(picName.lastIndexOf("."));
+      if (ObjectUtil.notEqual(".jpg", picfileExtension) && ObjectUtil
+          .notEqual(".png", picfileExtension)) {
+        return R.failed("请上传正确的图片类型");
+      }
+      String picfileName = System.currentTimeMillis() + picName;
+      String picfilePath = ResourceUtils
+          .getFile(ResourceUtils.CLASSPATH_URL_PREFIX + "templates/article/pic").getPath();
+      try {
+        FileUtil.writeBytes(picFile.getBytes(), picfilePath + "/" + picfileName);
+      } catch (IOException e) {
+        return R.failed("上传图片失败");
+      }
+      articleInfo.setArticlePicture("article/pic/" + picfileName);
+    }
+
+    if (!voiceFile.isEmpty()) {
+      //校验音频格式
+      String voiceName = voiceFile.getOriginalFilename();
+      String voicefileExtension = voiceName.substring(voiceName.lastIndexOf("."));
+      if (ObjectUtil.notEqual(".mp3", voicefileExtension)) {
+        return R.failed("请上传正确的音频类型");
+      }
+
+      String voicefileName = System.currentTimeMillis() + voiceName;
+      String voicefilePath = ResourceUtils
+          .getFile(ResourceUtils.CLASSPATH_URL_PREFIX + "templates/article/voice").getPath();
+      try {
+        FileUtil.writeBytes(picFile.getBytes(), voicefilePath + "/" + voicefileName);
+      } catch (IOException e) {
+        return R.failed("上传音频失败");
+      }
+      articleInfo.setArticleVoice("article/voice/" + voicefileName);
+    }
+    return R.ok("");
+  }
+
 }
 

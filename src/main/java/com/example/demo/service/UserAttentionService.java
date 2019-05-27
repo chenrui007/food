@@ -2,6 +2,7 @@ package com.example.demo.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.example.demo.entity.UserAttention;
+import java.util.List;
 
 /**
  * <p>
@@ -29,4 +30,19 @@ public interface UserAttentionService extends IService<UserAttention> {
      * @return
      */
     boolean removeAttention(Long currentUserId, Long userId);
+
+    /**
+     * 获取关注
+     * @param userId
+     * @param attentionUserId
+     * @return
+     */
+    UserAttention getUserAttention(Long userId,Long attentionUserId);
+
+    /**
+     * 用户关注
+     * @param userId
+     * @return
+     */
+    List<UserAttention> listUserAttention(Long userId);
 }

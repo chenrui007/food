@@ -251,21 +251,21 @@
 </script>
 <script>
   function updateArticle() {
+    var articleId = getQueryVariable("articleId");
     var userId = localStorage.getItem("userId");
     if (userId == null) {
       window.location.href = "login.html";
     }
     var formData = new FormData($("#articleInfo")[0]);
 
-    var articleName = document.getElementById("articleName").value;
-    var categoryId = getQueryVariable("categoryId");
+    var articleName = document.getElementById("name").value;
     var content = document.getElementById("content").value;
+    formData.set("articleId",articleId);
     formData.set("articleName", articleName);
-    formData.set("categoryId", categoryId);
     formData.set("content", content);
     $.ajax({
       type: "POST",
-      url: "article/saveArticle",//路径
+      url: "article/updateArticle",//路径
       data: formData,
       async: false,
       cache: false,
@@ -273,17 +273,17 @@
       processData: false,
       success: function (data) {//返回数据根据结果进行相应的处理
         if (data.code == 0) {
-          swal("发布文章成功", "", "success");
+          swal("修改文章成功", "", "success");
         } else {
-          swal("发布文章失败", data.msg, "error");
+          swal("修改文章失败", data.msg, "error");
         }
       }
     });
   }
 </script>
-<script>
+<!--<script>
   $(document).ready(function () {
-
+    var articleId =getQueryVariable("articleId");
     $.ajax({
       type: "GET",
       url: "category/listCategory",//路径
@@ -294,14 +294,14 @@
         var category = "";
 
         for (var i = 0; i < data.length; i++) {
-          category += ' <li><a href="article.html?categoryId=' + data[i].id + '">'
+          category += ' <li><a href="article.html?categoryId=' + data[i].id + '&articleId='+articleId+'">'
               + data[i].categoryName + '</a></li>';
         }
         $("#category").html('').append(category);
       }
     });
   })
-</script>
+</script>-->
 <script>
   $(document).ready(function () {
     var articleId = getQueryVariable("articleId");

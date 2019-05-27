@@ -28,6 +28,63 @@
   <link
       href="http://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i,800,800i&amp;subset=cyrillic,cyrillic-ext,greek,greek-ext,latin-ext,vietnamese"
       rel="stylesheet">
+  <style>
+    /* 外面盒子样式---自己定义 */
+    .page_div {
+      margin: 20px 10px 20px 0;
+      color: #666
+    }
+
+    /* 页数按钮样式 */
+    .page_div button {
+      display: inline-block;
+      min-width: 30px;
+      height: 28px;
+      cursor: pointer;
+      color: #666;
+      font-size: 13px;
+      line-height: 28px;
+      background-color: #f9f9f9;
+      border: 1px solid #dce0e0;
+      text-align: center;
+      margin: 0 4px;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+    }
+
+    #firstPage, #lastPage, #nextPage, #prePage {
+      width: 50px;
+      color: #0073A9;
+      border: 1px solid #0073A9
+    }
+
+    #nextPage, #prePage {
+      width: 70px
+    }
+
+    .page_div .current {
+      background-color: #0073A9;
+      border-color: #0073A9;
+      color: #FFF
+    }
+
+    /* 页面数量 */
+    .totalPages {
+      margin: 0 10px
+    }
+
+    .totalPages span, .totalSize span {
+      color: #0073A9;
+      margin: 0 5px
+    }
+
+    /*button禁用*/
+    .page_div button:disabled {
+      opacity: .5;
+      cursor: no-drop
+    }
+  </style>
 </head>
 
 <body>
@@ -72,39 +129,18 @@
 <!-- //banner -->
 <!-- typography -->
 <div class="typo">
-
   <div class="container">
-    <h2 class="w3ls_head" id="articleName"></h2>
-
-    <div class="grid_3 grid_5 agile">
-      <ol class="breadcrumb">
-        <li><a href="index.html">首页</a></li>
-        <li class="active" id="categoryName"></li>
-      </ol>
-      <div class="well" id="author"></div>
-      <div class="well" id="articleContent">
-
-      </div>
-      <div class="well" id="articlePicture">
-
-      </div>
-      <div class="well" id="articleVoice">
-
-      </div>
-      <div id="collectionButton"></div>
+    <div id="userName"></div>
+    <div id="attention"></div>
+    <div class="bs-docs-example">
+      <table class="table table-striped">
+        <tbody id="articleName">
+        </tbody>
+      </table>
     </div>
 
 
-    <h3 class="bars">留言</h3>
-    <ul class="list-group w3-agile" id="articleMessage">
-    </ul>
-
-
-    <div>
-      <textarea id="message" name="message" required=""></textarea>
-      <span></span>
-    </div>
-    <button class="btn btn-warning" onclick="sendMessage()" type="button">发送留言</button>
+    <div class="page_div" id="page"></div>
 
   </div>
 </div>
@@ -186,6 +222,7 @@
 <!-- //footer -->
 <script src="js/move-top.js" type="text/javascript"></script>
 <script src="js/easing.js" type="text/javascript"></script>
+<script src="js/pageMe.js" type="text/javascript"></script>
 <!-- here stars scrolling icon -->
 <script type="text/javascript">
   $(document).ready(function () {
@@ -208,6 +245,7 @@
 <!-- //for bootstrap working -->
 <script src="js/jarallax.js"></script>
 <script src="js/SmoothScroll.min.js"></script>
+<script src="js/sweetalert.min.js"></script>
 <script type="text/javascript">
   /* init Jarallax */
   $('.jarallax').jarallax({
@@ -232,137 +270,102 @@
 </script>
 <script>
   $(document).ready(function () {
-    var articleId = getQueryVariable("articleId");
+
     $.ajax({
-      type: "POST",
-      url: "articleInfo/updateReadNum",//路径
-      data: {"articleId": articleId},
+      type: "GET",
+      url: "userInfo/getUserInfo",//路径
+      data: {
+        "userId": getQueryVariable("userId")
+      },
       dataType: "json",
       success: function (data) {//返回数据根据结果进行相应的处理
+        var data = data.data;
+        var userName = '<h2 class="w3ls_head"><span>' + data.userName + '</span></h2>';
+        $("#userName").html('').append(userName);
       }
     })
-
+    data();
   })
 </script>
 <script>
-  function userCollectionStatus(articleId) {
-    var status = "";
+  function data(current) {
+    var userId = getQueryVariable("userId");
     $.ajax({
       type: "GET",
-      url: "userCollection/selCollection",//路径
-      data: {"articleId": articleId},
+      url: "article/myArticle",//路径
+      data: {
+        "userId": userId,
+        "current": current
+      },
       dataType: "json",
       success: function (data) {//返回数据根据结果进行相应的处理
+        var data = data.data;
+        page(data.current, data.pages, data.total);
         console.log(data);
-        if (data.data != null) {
-          status = 1;
-        } else {
-          status = 0;
+        var articleName = "";
+        for (var i = 0; i < data.records.length; i++) {
+          articleName += '<tr><td>' + (i + 1) + '<input type="hidden" id="' + i + '" value="'
+              + data.records[i].id + '"></td><td><a href="article_info.html?articleId='
+              + data.records[i].id + '">' + data.records[i].articleName + '</a> </td><td>阅读量：'
+              + data.records[i].readNum
+              + '</td></tr>'
         }
-        console.log(status);
-        return status;
+        $("#articleName").html('').append(articleName);
       }
-    })
-
+    });
+  }
+</script>
+<script>
+  function page(current, pages, total) {
+    // pageMe.js 使用方法
+    $("#page").paging({
+      pageNum: current, // 当前页面
+      totalNum: pages, // 总页码
+      totalList: total, // 记录总数量
+      callback: function (num) { //回调函数
+        data(null, num);
+      }
+    });
   }
 </script>
 <script>
   $(document).ready(function () {
-    var articleId = getQueryVariable("articleId");
-    var userId = localStorage.getItem("userId");
     $.ajax({
       type: "GET",
-      url: "article/getArticle",//路径
-      data: {"articleId": articleId},
-      dataType: "json",
-      success: function (data) {//返回数据根据结果进行相应的处理
-        var data = data.data;
-        console.log(data);
-        var author = "";
-        if (userId != data.authorId) {
-          author = '<span><a href="article_user.html?userId=' + data.authorId + '">' + data.author
-              + '</a></span>';
-        } else {
-          author = '<span>' + data.author + '</span>';
-        }
-
-        $("#author").html('').append("作者：").append(author);
-
-        var articleName = '<span>' + data.articleName + '</span>';
-        $("#articleName").html('').append(articleName);
-
-        var articleContent = data.content;
-        $("#articleContent").html('').append(articleContent);
-
-        var articlePicture = '<img src="' + data.articlePicture + '" alt="">';
-        $("#articlePicture").html('').append(articlePicture);
-
-        var articleVoice = '<audio src="article/voice/defalut.mp3" controls="controls" <!--autoplay="autoplay"-->></audio>'
-        $("#articleVoice").html('').append(articleVoice);
-
-        var categoryName = data.categoryName;
-        $("#categoryName").html('').append(categoryName);
-
-        var articleMessage = "";
-        for (var i = 0; i < data.articleMessage.length; i++) {
-          articleMessage += ' <li class="list-group-item">' + data.articleMessage[i].message + '（'
-              + data.articleMessage[i].messageFrom + '） —— ' + data.articleMessage[i].createTimeStr
-              + '</li>';
-        }
-        $("#articleMessage").html('').append(articleMessage);
-
-        var collectionButton = "";
-        if (userId != data.authorId) {
-
-          if (data.collectionStatus == 0) {
-            collectionButton = '<button class="btn btn-success" onclick="addOrRemoveCollection(1)" type="button">添加收藏</button>'
-          } else {
-            collectionButton = '<button class="btn btn-danger" onclick="addOrRemoveCollection(-1)" type="button">移除收藏</button>'
-          }
-
-          $("#collectionButton").html('').append(collectionButton);
-        }
-      }
-    });
-  })
-</script>
-<script>
-  function sendMessage() {
-    var articleId = getQueryVariable("articleId");
-    var message = document.getElementById("message").value;
-    $.ajax({
-      type: "POST",
-      url: "articleMessage/saveArticleMessage",//路径
+      url: "userAttention/selAttention",//路径
       data: {
-        "articleId": articleId,
-        "message": message
+        "attentionUserId": getQueryVariable("userId")
       },
       dataType: "json",
       success: function (data) {//返回数据根据结果进行相应的处理
-        if (data.code == 0) {
-          swal("留言成功", "", "success");
+        var attention = "";
+        if (data.data == null) {
+          attention = '<button class="btn btn-success" onclick="attention(1)">添加关注</button>';
         } else {
-          swal("留言失败", data.msg, "error");
+          attention = '<button class="btn btn-danger" onclick="attention(-1)">移除关注</button>'
         }
+
+        $("#attention").html('').append(attention);
       }
-    });
-  }
+    })
+  })
 </script>
 <script>
-  function addOrRemoveCollection(type) {
-    var articleId = getQueryVariable("articleId");
+  function attention(type) {
     $.ajax({
       type: "POST",
-      url: "userCollection/addOrRemoveCollection",//路径
+      url: "userAttention/addOrRemoveAttention",//路径
       data: {
-        "articleId": articleId,
+        "userId": getQueryVariable("userId"),
         "type": type
       },
       dataType: "json",
       success: function (data) {//返回数据根据结果进行相应的处理
-        window.location.reload();
+        if (data.code == 0) {
+          window.location.reload();
+        }
       }
-    });
+    })
   }
 </script>
 </html>

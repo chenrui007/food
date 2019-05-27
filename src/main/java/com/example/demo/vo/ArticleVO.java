@@ -2,6 +2,8 @@ package com.example.demo.vo;
 
 import com.example.demo.entity.ArticleMessage;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import java.io.Serializable;
 import java.util.List;
 
@@ -10,6 +12,7 @@ import java.util.List;
  * @date 2019/5/26
  */
 public class ArticleVO implements Serializable {
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long id;
     /**
      * 文章名
@@ -43,7 +46,7 @@ public class ArticleVO implements Serializable {
      * 留言
      */
     private List<ArticleMessage> articleMessage;
-
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long authorId;
     /**
      * 收藏状态

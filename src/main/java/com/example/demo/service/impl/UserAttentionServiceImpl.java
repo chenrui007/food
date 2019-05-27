@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.demo.entity.UserAttention;
 import com.example.demo.mapper.UserAttentionMapper;
 import com.example.demo.service.UserAttentionService;
+import java.util.List;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -36,5 +37,17 @@ public class UserAttentionServiceImpl extends ServiceImpl<UserAttentionMapper, U
         return this.remove(new LambdaQueryWrapper<UserAttention>()
                 .eq(UserAttention::getUserId, currentUserId)
                 .eq(UserAttention::getAttentionUserId, userId));
+    }
+
+    @Override
+    public UserAttention getUserAttention(Long userId, Long attentionUserId) {
+        return this.getOne(new LambdaQueryWrapper<UserAttention>()
+            .eq(UserAttention::getUserId,userId)
+            .eq(UserAttention::getAttentionUserId,attentionUserId));
+    }
+
+    @Override
+    public List<UserAttention> listUserAttention(Long userId) {
+        return this.list(new LambdaQueryWrapper<UserAttention>().eq(UserAttention::getUserId,userId));
     }
 }

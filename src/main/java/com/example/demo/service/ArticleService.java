@@ -39,10 +39,17 @@ public interface ArticleService extends IService<Article> {
   /**
    * 修改文章
    */
-  boolean updateArticle();
+  boolean updateArticle(Article article);
 
   /**
    * 获取文章列表
    */
   List<Article> listArticle();
+
+  /**
+   * 用户文章数
+   * @param userId
+   * @return
+   */
+  int articleNumByUserId(Long userId);
 }
