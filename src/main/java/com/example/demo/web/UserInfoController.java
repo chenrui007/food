@@ -14,6 +14,11 @@ import com.example.demo.entity.Article;
 import com.example.demo.entity.UserInfo;
 import com.example.demo.service.ArticleService;
 import com.example.demo.service.UserInfoService;
+import com.example.demo.vo.UserVO;
+import java.util.ArrayList;
+import java.util.Comparator;
+import org.apache.velocity.util.ArrayListWrapper;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.ResourceUtils;
 import org.springframework.web.bind.annotation.*;
@@ -85,7 +90,7 @@ public class UserInfoController {
     } else {
       userInfo = new UserInfo();
       if (file.isEmpty()) {
-        userInfo.setAvatar("default_avatar.jpg");
+        userInfo.setAvatar("images/t1.jpg");
       } else {
         String fileName = System.currentTimeMillis() + file.getOriginalFilename();
         String filePath = ResourceUtils
@@ -125,25 +130,19 @@ public class UserInfoController {
   /**
    * 修改密码
    *
-   * @param userId 用户ID
-   * @param password1 密码1
-   * @param password2 密码2
    */
   @PostMapping("/updateUser")
-  public R updateUser(Long userId, String password1, String password2) {
-    if (StringUtils.isEmpty(password1) || StringUtils.isEmpty(password2)) {
+  public R updateUser(HttpSession session, String password) {
+    Long userId = Long.valueOf(session.getAttribute("userId").toString());
+    if (StringUtils.isEmpty(password)) {
       return R.failed("请输入密码");
     } else {
-      if (ObjectUtil.notEqual(password1, password2)) {
-        return R.failed("两次密码不同");
+      UserInfo userInfo = userInfoService.getUserInfo(null, userId);
+      if (ObjectUtil.equal(userInfo.getPassword(), password)) {
+        return R.failed("不能与原密码相同");
       } else {
-        UserInfo userInfo = userInfoService.getUserInfo(null, userId);
-        if (ObjectUtil.equal(userInfo.getPassword(), password2)) {
-          return R.failed("不能与原密码相同");
-        } else {
-          return userInfoService.updateUserInfo(userId, null, password2) ? R.ok("修改成功")
-              : R.failed("修改失败");
-        }
+        return userInfoService.updateUserInfo(userId, null, password) ? R.ok("修改成功")
+            : R.failed("修改失败");
       }
     }
   }
@@ -176,8 +175,17 @@ public class UserInfoController {
    */
   @GetMapping("/activeUserRanking")
   public R activeUserRanking() {
-    List<Article> articleList = articleService.listArticle();
-    return R.ok("");
+    List<UserInfo> userInfoList = userInfoService.listUserInfo();
+    List<UserVO> userVOS = new ArrayList<>();
+    userInfoList.stream().forEach(it->{
+      UserVO userVO = new UserVO();
+      BeanUtils.copyProperties(it,userVO);
+      int articleNum = articleService.articleNumByUserId(it.getId());
+      userVO.setArticleNum(articleNum);
+      userVOS.add(userVO);
+    });
+    userVOS.sort(Comparator.comparing(UserVO::getArticleNum).reversed());
+    return R.ok(userVOS);
   }
 
   /**

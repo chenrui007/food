@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.example.demo.entity.UserInfo;
+import java.util.List;
 
 /**
  * <p>
@@ -57,4 +58,10 @@ public interface UserInfoService extends IService<UserInfo> {
      * @return
      */
     IPage<UserInfo> pageUserInfo(Page<UserInfo> page, String userName);
+
+    /**
+     * 用户列表
+     * @return
+     */
+    List<UserInfo> listUserInfo();
 }

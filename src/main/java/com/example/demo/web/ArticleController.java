@@ -12,6 +12,12 @@ import com.example.demo.common.MyConstants;
 import com.example.demo.entity.*;
 import com.example.demo.service.*;
 import com.example.demo.vo.ArticleVO;
+import com.example.demo.vo.UserVO;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.ResourceUtils;
 import org.springframework.web.bind.annotation.*;
@@ -259,5 +265,40 @@ public class ArticleController {
     return R.ok("");
   }
 
+  /**
+   * 热门文章
+   */
+  @GetMapping("/hotArticle")
+  public R hotArticle() {
+    List<ArticleVO> articleVOList = new ArrayList<>();
+    List<Article> articleList = articleService.listArticle();
+    articleList.stream().forEach(it -> {
+      ArticleVO articleVO = new ArticleVO();
+      ArticleInfo articleInfo = articleInfoService.getByArticleId(it.getId());
+      BeanUtils.copyProperties(it, articleVO);
+      Category category = categoryService.getById(it.getCategoryId());
+      articleVO.setCategoryName(category.getCategoryName());
+      articleVO.setReadingVolume(articleInfo.getReadingVolume());
+      articleVOList.add(articleVO);
+    });
+    articleVOList.sort(Comparator.comparing(ArticleVO::getReadingVolume).reversed());
+    return R.ok(articleVOList);
+  }
+
+  /**
+   * 首页统计
+   */
+  @GetMapping("/statistics")
+  public R statistics() {
+    List<UserInfo> userInfoList = userInfoService.listUserInfo();
+    List<Article> articleList = articleService.listArticle();
+    List<ArticleMessage> articleMessageList = articleMessageService.list();
+    Map<String, Integer> map = new HashMap<>();
+    map.put("userCount", userInfoList.size());
+    map.put("articleCount", articleList.size());
+    map.put("messageCount", articleMessageList.size());
+    return R.ok(map);
+
+  }
 }
 

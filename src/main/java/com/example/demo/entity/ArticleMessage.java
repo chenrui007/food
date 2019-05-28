@@ -32,6 +32,7 @@ public class ArticleMessage implements Serializable {
     /**
      * 用户ID
      */
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long userId;
     /**
      * 创建时间
