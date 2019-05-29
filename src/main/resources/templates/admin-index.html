@@ -56,7 +56,7 @@
                         <!-- Messages   -->
                         <!-- Languages dropdown    -->
                         <!-- Logout    -->
-                        <li class="nav-item"><a href="admin-login.html" class="nav-link logout"> <span
+                        <li class="nav-item"><a href="index.html" class="nav-link logout"> <span
                                 class="d-none d-sm-inline">退出</span><i class="fa fa-sign-out"></i></a></li>
                     </ul>
                 </div>
@@ -85,14 +85,8 @@
                         <li><a href="admin-list-category.html">分类列表</a></li>
                     </ul>
                 </li>
-                <li><a href="#car" aria-expanded="false" data-toggle="collapse"> <i
-                        class="icon-interface-windows"></i>商品管理</a>
-                    <ul id="car" class="collapse list-unstyled ">
-                        <li><a href="admin-save-product.html">上传商品</a></li>
-                        <li><a href="admin-list-product.html">商品列表</a></li>
-                    </ul>
-                </li>
-                <li><a href="admin-list-order.html"><i class="icon-flask"></i>订单管理</a></li>
+                <li><a href="admin-list-article.html"><i class="icon-interface-windows"></i>文章管理</a></li>
+                <li><a href="admin-list-user.html"><i class="icon-flask"></i>用户管理</a></li>
             </ul>
             <span class="heading">Extras</span>
         </nav>
@@ -124,7 +118,7 @@
                         <div class="col-xl-3 col-sm-6">
                             <div class="item d-flex align-items-center">
                                 <div class="icon bg-red"><i class="icon-padnote"></i></div>
-                                <div class="title"><span>分类数目</span>
+                                <div class="title"><span>文章数目</span>
                                     <div class="progress">
                                         <div role="progressbar" style="width: 70%; height: 4px;" aria-valuenow="70"
                                              aria-valuemin="0" aria-valuemax="100" class="progress-bar bg-red"></div>
@@ -137,7 +131,7 @@
                         <div class="col-xl-3 col-sm-6">
                             <div class="item d-flex align-items-center">
                                 <div class="icon bg-green"><i class="icon-bill"></i></div>
-                                <div class="title"><span>商品数目</span>
+                                <div class="title"><span>留言数目</span>
                                     <div class="progress">
                                         <div role="progressbar" style="width: 40%; height: 4px;" aria-valuenow="40"
                                              aria-valuemin="0" aria-valuemax="100" class="progress-bar bg-green"></div>
@@ -150,7 +144,7 @@
                         <div class="col-xl-3 col-sm-6">
                             <div class="item d-flex align-items-center">
                                 <div class="icon bg-orange"><i class="icon-check"></i></div>
-                                <div class="title"><span>订单数目</span>
+                                <div class="title"><span>其他数目</span>
                                     <div class="progress">
                                         <div role="progressbar" style="width: 50%; height: 4px;" aria-valuenow="50"
                                              aria-valuemin="0" aria-valuemax="100" class="progress-bar bg-orange"></div>
@@ -227,13 +221,6 @@
                         <div class="col-sm-6">
                             <p>Your company &copy; 2017-2019</p>
                         </div>
-                        <div class="col-sm-6 text-right">
-                            <p>Design by Bootstrapious.More Templates <a href="http://www.cssmoban.com/"
-                                                                         target="_blank"
-                                                                         title="模板之家">模板之家</a> - Collect from <a
-                                    href="http://www.cssmoban.com/" title="网页模板" target="_blank">网页模板</a></p>
-                            <!-- Please do not remove the backlink to us unless you support further theme's development at https://bootstrapious.com/donate. It is part of the license conditions. Thank you for understanding :)-->
-                        </div>
                     </div>
                 </div>
             </footer>
@@ -255,17 +242,17 @@
     $(document).ready(function () {
         $.ajax({
             type: "GET",
-            url: "admin/home",//路径
+            url: "article/statistics",//路径
             dataType: "json",
             success: function (data) {//返回数据根据结果进行相应的处理
                 console.log(data);
-                var carNumber = '<strong>' + data.data.userNumber + '</strong>';
+                var carNumber = '<strong>' + data.data.userCount + '</strong>';
                 $("#carNumber").html('').append(carNumber);
-                var maintenanceANumber = '<strong>' + data.data.categoryNumber + '</strong>';
+                var maintenanceANumber = '<strong>' + data.data.articleCount + '</strong>';
                 $("#maintenanceANumber").html('').append(maintenanceANumber);
-                var maintenanceBNumber = '<strong>' + data.data.productNumber + '</strong>';
+                var maintenanceBNumber = '<strong>' + data.data.messageCount + '</strong>';
                 $("#maintenanceBNumber").html('').append(maintenanceBNumber);
-                var evaluationNumber = '<strong>' + data.data.sellNumber + '</strong>';
+                var evaluationNumber = '<strong>' + 0 + '</strong>';
                 $("#evaluationNumber").html('').append(evaluationNumber);
             }
         });

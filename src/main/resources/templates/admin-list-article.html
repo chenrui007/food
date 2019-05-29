@@ -24,6 +24,63 @@
   <!-- Tweaks for older IEs--><!--[if lt IE 9]>
   <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
   <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script><![endif]-->
+  <style>
+    /* 外面盒子样式---自己定义 */
+    .page_div {
+      margin: 20px 10px 20px 0;
+      color: #666
+    }
+
+    /* 页数按钮样式 */
+    .page_div button {
+      display: inline-block;
+      min-width: 30px;
+      height: 28px;
+      cursor: pointer;
+      color: #666;
+      font-size: 13px;
+      line-height: 28px;
+      background-color: #f9f9f9;
+      border: 1px solid #dce0e0;
+      text-align: center;
+      margin: 0 4px;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+    }
+
+    #firstPage, #lastPage, #nextPage, #prePage {
+      width: 50px;
+      color: #0073A9;
+      border: 1px solid #0073A9
+    }
+
+    #nextPage, #prePage {
+      width: 70px
+    }
+
+    .page_div .current {
+      background-color: #0073A9;
+      border-color: #0073A9;
+      color: #FFF
+    }
+
+    /* 页面数量 */
+    .totalPages {
+      margin: 0 10px
+    }
+
+    .totalPages span, .totalSize span {
+      color: #0073A9;
+      margin: 0 5px
+    }
+
+    /*button禁用*/
+    .page_div button:disabled {
+      opacity: .5;
+      cursor: no-drop
+    }
+  </style>
 </head>
 <body>
 <div class="page">
@@ -90,7 +147,8 @@
       </ul>
       <span class="heading">Extras</span>
     </nav>
-    <div class="content-inner">      <!-- Page Header-->
+    <div class="content-inner">
+      <!-- Page Header-->
       <header class="page-header">
         <div class="container-fluid">
           <h2 class="no-margin-bottom">Tables</h2>
@@ -122,7 +180,16 @@
                   </div>
                 </div>
                 <div class="card-header d-flex align-items-center">
-                  <h3 class="h4">分类列表</h3>
+                  <h3 class="h4">文章列表</h3>
+                  <div>&nbsp;&nbsp;</div>
+                  <div>
+                    <input class="form-control" placeholder="请输入文章标题" size="7" id="name">
+
+                  </div>
+                  <div>&nbsp;&nbsp;</div>
+                  <div>
+                    <button onclick="search()"> 查找</button>
+                  </div>
                 </div>
                 <div class="card-body">
                   <div class="table-responsive">
@@ -130,15 +197,22 @@
                       <thead>
                       <tr>
                         <th>#</th>
-                        <th>分类名称</th>
+                        <th>标题</th>
+                        <th>分类</th>
+                        <th>作者</th>
+                        <th>发布时间</th>
+                        <th>查看留言</th>
                         <th>操作</th>
                       </tr>
                       </thead>
-                      <tbody id="workerList">
+                      <tbody id="articleList">
 
                       </tbody>
                     </table>
                   </div>
+                </div>
+                <div class="card-footer">
+                  <div id="page" class="page_div"></div>
                 </div>
               </div>
             </div>
@@ -169,52 +243,117 @@
 <script src="vendor/chart.js/Chart.min.js"></script>
 <script src="vendor/jquery-validation/jquery.validate.min.js"></script>
 <script src="vendor/sweetalert/sweetalert.min.js"></script>
+<script type="text/javascript" src="js/pageMe.js"></script>
 <!-- Main File-->
 <script src="js/front.js"></script>
 </body>
 <script>
-
-  $(document).ready(function () {
+  function data(name, current) {
     $.ajax({
       type: "GET",
-      url: "category/listCategory",//路径
+      url: "article/pageArticle",//路径
+      data: {
+        "articleName": name,
+        "current": current
+      },
       dataType: "json",
       success: function (data) {//返回数据根据结果进行相应的处理
         var data = data.data;
+        page(data.current, data.pages, data.total);
         console.log(data);
-        var workerList = "";
+        var articleList = "";
+        for (var i = 0; i < data.records.length; i++) {
 
-        for (var i = 0; i < data.length; i++) {
-          var workerStatus = "";
 
-          workerList += ' <tr><th scope="row">' + (i + 1) + '</th><td>' + data[i].categoryName
-              + '</td><td><input type="hidden" value="' + data[i].id
-              + '" id="'+i+'"><button class="btn btn-danger" onclick="delCategory('+i+')">删除</button></td></tr>';
+          articleList += ' <tr><th scope="row">' + (i + 1)
+              + '</th><td><input type="hidden" id="' + i + '" value="'
+              + data.records[i].id + '">' + data.records[i].articleName + '</td><td>'
+              + data.records[i].categoryName + '</td><td>' + data.records[i].authorName
+              + '</td><td>' + data.records[i].createTimeStr
+              + '</td><td><a href="admin-list-message.html?articleId=' + data.records[i].id
+              + '"><button class="btn btn-default">查看留言</button></a></td><td><button class="btn btn-danger" onclick="delArticle('+i+')">删除</button></td></tr>';
         }
-        $("#workerList").html('').append(workerList);
+        $("#articleList").html('').append(articleList);
       }
     });
+  }
+</script>
+<script>
+  function page(current, pages, total) {
+    // pageMe.js 使用方法
+    $("#page").paging({
+      pageNum: current, // 当前页面
+      totalNum: pages, // 总页码
+      totalList: total, // 记录总数量
+      callback: function (num) { //回调函数
+        data(null, num);
+      }
+    });
+  }
+</script>
+<script>
+  $(document).ready(function () {
+    data();
   })
 </script>
 <script>
-  function delCategory(i) {
-    var id = document.getElementById(i).value;
+  function updateStatus(id, status) {
+    var userId = document.getElementById(id).value;
     $.ajax({
       type: "POST",
-      url: "category/deleteCategory",//路径
+      url: "userInfo/updateUserStatus",//路径
       data: {
-        "id": id
+        "userId": userId,
+        "userStatus": status
       },
       dataType: "json",
       success: function (data) {//返回数据根据结果进行相应的处理
         if (data.code == 0) {
-          swal("删除分类成功", "", "success");
-          setTimeout(window.location.reload(), 10000);
+          window.location.reload();
         } else {
-          swal("删除分类失败", data.msg, "error");
+          swal("修改状态失败", "系统异常", "error");
         }
       }
     });
+  }
+</script>
+<script>
+  function delArticle(i) {
+    var articleId = document.getElementById(i).value;
+    swal({
+      title: "确定删除吗？",
+      text: "你将无法恢复该数据！",
+      type: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#DD6B55",
+      cancelButtonText: "取消删除！",
+      confirmButtonText: "确定删除！",
+      closeOnConfirm: false,
+      closeOnCancel: false
+    }).then(
+        function (isConfirm) {
+          if (isConfirm) {
+            var data = {};
+            $.ajax({
+              url: 'article/deleteArticle',
+              type: 'POST',
+              data: {"articleId": articleId},
+              dataType: 'json',
+              success: function (data) {
+                swal('提示', '该文章已被成功删除', 'success')
+                .then(
+                    function (isConfirm) {
+                      window.location.reload();
+                    });
+              },
+              error: function () {
+                swal('提示', '删除数据时出错', 'error');
+              }
+            });
+          } else {
+            //swal("取消！", "已经取消的删除","error");
+          }
+        });
   }
 </script>
 </html>

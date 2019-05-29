@@ -141,7 +141,7 @@ public class UserInfoController {
       if (ObjectUtil.equal(userInfo.getPassword(), password)) {
         return R.failed("不能与原密码相同");
       } else {
-        return userInfoService.updateUserInfo(userId, null, password) ? R.ok("修改成功")
+        return userInfoService.updateUserInfo(userId, null, SecureUtil.md5(password)) ? R.ok("修改成功")
             : R.failed("修改失败");
       }
     }
@@ -153,11 +153,12 @@ public class UserInfoController {
    * @param userName 用户名
    * @param page 分页
    */
-  @PostMapping("/pageUser")
+  @GetMapping("/pageUser")
   public R pageUser(Page<UserInfo> page, String userName) {
     IPage<UserInfo> retPage = userInfoService.pageUserInfo(page, userName);
     return R.ok(retPage);
   }
+
 
   /**
    * 删除用户

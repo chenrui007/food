@@ -60,8 +60,9 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
   @Override
   public IPage<UserInfo> pageUserInfo(Page<UserInfo> page, String userName) {
     return this.page(page, new LambdaQueryWrapper<UserInfo>()
-        .eq(StringUtils.isNotEmpty(userName), UserInfo::getUserName, userName)
-        .ne(UserInfo::getStatus, MyConstants.UserStatus.delete));
+        .like(StringUtils.isNotEmpty(userName), UserInfo::getUserName, userName)
+        .ne(UserInfo::getStatus, MyConstants.UserStatus.delete)
+        .orderByAsc(UserInfo::getLoginName));
   }
 
   @Override

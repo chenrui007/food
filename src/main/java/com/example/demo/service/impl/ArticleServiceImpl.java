@@ -35,7 +35,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         .in(CollectionUtil.isNotEmpty(articleIds), Article::getId, articleIds)
         .eq(Article::getStatus, MyConstants.UserStatus.nomal)
         .eq(ObjectUtil.isNotNull(canRead), Article::getCanRead, canRead)
-        .eq(ObjectUtil.isNotNull(authorId), Article::getAuthor, authorId));
+        .eq(ObjectUtil.isNotNull(authorId), Article::getAuthor, authorId)
+        .orderByDesc(Article::getCreateTime));
   }
 
   @Override

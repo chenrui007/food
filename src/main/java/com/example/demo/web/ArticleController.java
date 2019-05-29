@@ -64,6 +64,13 @@ public class ArticleController {
         .pageArticle(page, articleName, categoryId, MyConstants.UserStatus.nomal, null, null);
     ret.getRecords().stream().forEach(it -> {
       it.setReadNum(articleInfoService.getByArticleId(it.getId()).getReadingVolume());
+      Category category = categoryService.getById(it.getCategoryId());
+      it.setCategoryName(category.getCategoryName());
+
+      UserInfo userInfo = userInfoService.getById(it.getAuthor());
+      it.setAuthorName(userInfo.getUserName());
+
+      it.setCreateTimeStr(DateUtil.format(it.getCreateTime(), "yyyy-MM-dd HH:mm:ss"));
     });
     return R.ok(ret);
   }

@@ -70,7 +70,21 @@ public class ArticleMessageController {
   @GetMapping("/pageArticleMessage")
   public R pageArticleMessage(Page<ArticleMessage> page, Long articleId) {
     IPage<ArticleMessage> ret = articleMessageService.pageArticleMessage(page, articleId, null);
-    return R.ok(ret);
+    List<ArticleMessageVO> articleMessageVOList = new ArrayList<>();
+    ret.getRecords().stream().forEach(it -> {
+      ArticleMessageVO articleMessageVO = new ArticleMessageVO();
+      BeanUtils.copyProperties(it, articleMessageVO);
+      UserInfo userInfo = userInfoService.getById(it.getUserId());
+      articleMessageVO.setMessageFrom(userInfo.getUserName());
+      articleMessageVO.setAvatar(userInfo.getAvatar());
+      articleMessageVO.setCreateTimeStr(DateUtil.format(it.getCreateTime(), "yyyy-MM-dd HH:mm:ss"));
+      articleMessageVOList.add(articleMessageVO);
+    });
+    articleMessageVOList.sort(Comparator.comparing(ArticleMessageVO::getCreateTime).reversed());
+    IPage<ArticleMessageVO> retPage = new Page<>();
+    BeanUtils.copyProperties(ret,retPage);
+    retPage.setRecords(articleMessageVOList);
+    return R.ok(retPage);
   }
 
   /**
